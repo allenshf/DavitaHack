@@ -3,15 +3,34 @@ from django.contrib import messages
 from .forms import EntryForm
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
+from .models import Entry, Image
+from django.core.files.storage import FileSystemStorage
+import os
+
 
 # Create your views here.
 def home(request):
 
 	return render(request, 'data/home.html')
 
+def upload_image(request):
+	if request.method == 'POST':
+		upload = request.FILES['picture']
+		fs = FileSystemStorage()
+		fs.save(upload.name,upload)
+		#TODO:Run image (upload) through OCR to get data for new Entry
+		newEntry = Entry(user=request.user, pre_bp_dia=1,pre_bp_sys=1,pre_weight=1,post_bp_dia=1,post_bp_sys=1,post_weight=1)
+		newImage = Image(image=upload,entry=newEntry)
+		newEntry.save()
+		newImage.save()
+		messages.success(request,'Saved ' + str(newEntry))
+		return redirect('home')
+	return render(request, 'data/upload.html')
+
 @login_required
 def enter_data(request):
 	form = EntryForm()
+	#form = EntryForm(initial={'pre_bp_sys':pre_bp_sys,...})
 	return render(request,'data/enter_data.html',{'form':form})
 
 def submit_data(request):

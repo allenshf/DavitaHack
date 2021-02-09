@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from PIL import Image
 
 # Create your models here.
 class Entry(models.Model):
@@ -15,4 +16,8 @@ class Entry(models.Model):
 
 	def __str__(self):
 		return str(self.user) + ': ' + self.date_created.strftime('%m/%d/%Y')
+
+class Image(models.Model):
+	image = models.ImageField()
+	entry = models.OneToOneField(Entry,on_delete=models.CASCADE)
 
