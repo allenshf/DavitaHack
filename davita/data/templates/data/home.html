@@ -4,15 +4,17 @@
     <div class="content-section col-md-10">
 		<row>
 
-			<h3>Welcome to Davita Home Dialysis Data Entry!</h3>
+			<h3>Welcome to Your Davita Home Dialysis Data Entry!</h3>
 			<a href="/upload/" class="float-right">	
 				<button class="btn btn-outline-info" > &#x2B; Add Entry</button> 
 			</a>
 			<br>
-			<p>Past Entries:</p><br>
-			{% for entry in user.entry_set.all%}
+			<p>Your Past Entries:</p><br>
+			{% for entry in user.entry_set.all reversed %}
 				<li class="list-group-item list-group-item-light"><a href="/confirm/{{entry.id}}/">Entry Date: {{entry.date_created}}</a>
+				{% if entry.image.url %}
 					<a class="text-muted" href="/media/{{entry.image.url}}/">See picture</a>
+				{% endif %}
 			{% endfor %}
 			</div>  
 		</row>

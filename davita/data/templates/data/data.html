@@ -1,9 +1,6 @@
 {% extends "davita/base.html" %}
 {% block content%}
 	<div class="content-section">
-		<h3>Dates:</h3>
-		{%for date in dates %}
-		<p>{{date|date:"F d, Y, g:iA T"}}</p>
-		{% endfor %}
+		<img src="data:image/png;base64,{{data}}">
 	</div>
 {% endblock content %}

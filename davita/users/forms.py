@@ -21,4 +21,5 @@ class UserUpdateForm(forms.ModelForm):
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['height']
+        fields = ['name','dob', 'height']
+        labels = {'name': 'Full Name','dob':'Date of Birth', 'height': 'Height (in)'}
