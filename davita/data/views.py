@@ -84,26 +84,26 @@ def data(request,field=''):
 	if field == 'bps':
 		cat = 'Systolic Blood Pressure'
 		data = [ {'date': entry.date_created, 'pre_bps': entry.pre_bp_sys,
-			'post_bps': entry.post_bp_sys, 'avg': (entry.pre_bp_sys+entry.post_bp_sys)/2} for entry in request.user.entry_set.all()]
+			'post_bps': entry.post_bp_sys, 'avg': (entry.pre_bp_sys+entry.post_bp_sys)/2} for entry in request.user.entry_set.all().reverse()]
 		df = pd.DataFrame(data)	
 		y_LL = int(df['post_bps'].min()*0.9)
 		y_UL = int(df['pre_bps'].max()*1.1)
 	elif field == 'bpd':
 		cat = 'Diastolic Blood Pressure'
 		data = [ {'date': entry.date_created, 'pre_bpd': entry.pre_bp_dia,
-			'post_bpd': entry.post_bp_dia, 'avg': (entry.pre_bp_dia+entry.post_bp_dia)/2} for entry in request.user.entry_set.all()]
+			'post_bpd': entry.post_bp_dia, 'avg': (entry.pre_bp_dia+entry.post_bp_dia)/2} for entry in request.user.entry_set.all().reverse()]
 		df = pd.DataFrame(data)
 		y_LL = int(df['post_bpd'].min()*0.9)
 		y_UL = int(df['pre_bpd'].max()*1.1)
 	else:
 		cat = 'Weight'
 		data = [ {'date': entry.date_created,'pre_wei': entry.pre_weight,
-			'post_wei': entry.post_weight,'avg': (entry.pre_weight+entry.post_weight)/2} for entry in request.user.entry_set.all()]
+			'post_wei': entry.post_weight,'avg': (entry.pre_weight+entry.post_weight)/2} for entry in request.user.entry_set.all().reverse()]
 		df = pd.DataFrame(data)
 		y_LL = int(df['post_wei'].min()*0.9)
 		y_UL = int(df['pre_wei'].max()*1.1)
 
-	if int(df['avg'].max()) > int(df['avg'].min()*1.1):
+	if int(df['avg'].max()) > int(df['avg'][0]*1.1):
 		messages.warning('Note: Your ' + str(cat) + " has increased by over 10% recently.")
 
 	y_interval = 10
@@ -114,7 +114,6 @@ def data(request,field=''):
 
 	# Draw Plot and Annotate
 	fig, ax = plt.subplots(1,1,figsize=(16, 9), dpi= 80)    
-
 	columns = df.columns[1:3]  
 	for i, column in enumerate(columns):    
 		if i == 0:
@@ -158,6 +157,5 @@ def data(request,field=''):
 	buf.seek(0)
 	string = base64.b64encode(buf.read())
 	url = urllib.parse.quote(string)
-
 	
 	return render(request,'data/data.html',{'data':url})
