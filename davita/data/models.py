@@ -11,7 +11,7 @@ class Entry(models.Model):
 	post_bp_sys = models.IntegerField()
 	post_bp_dia = models.IntegerField()
 	post_weight = models.IntegerField()
-	date_created = models.DateTimeField(editable=False)
+	date_created = models.DateTimeField()
 
 	def __str__(self):
 		return str(self.user) + ': ' + self.date_created.strftime('%m/%d/%Y')

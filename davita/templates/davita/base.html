@@ -29,7 +29,15 @@
                 <div class="collapse navbar-collapse" id="navbarToggle">
                   <div class="navbar-nav mr-auto">
                     <a class="nav-item nav-link" href="{% url 'home' %}">Home</a>
-                    <a class="nav-item nav-link" href="{% url 'data' %}">Data</a>
+                    <!--Data Dropdown-->
+                    <div class="dropdown mr-2 nav-item">
+                      <button class="dropbtn dropdown-toggle"> Data</span></button>
+                        <div class="dropdown-content">
+                            <a href="/data/">Weight</a>
+                            <a href="/data/bps/">Systolic BP</a>
+                            <a href="/data/bpd/">Diastolic BP</a>
+                        </div>
+                    </div>
                     </div>
                   <!-- Navbar Right Side -->
                   <div class="navbar-nav">
