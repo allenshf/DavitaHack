@@ -24,7 +24,7 @@ def upload_image(request):
 		fs.save(upload.name,upload)
 		#TODO:Run image (upload) through OCR to get data for new Entry
 		
-		newEntry = Entry(user=request.user, pre_bp_dia=1,pre_bp_sys=1,pre_weight=1,post_bp_dia=1,post_bp_sys=1,post_weight=1)
+		newEntry = Entry(user=request.user, pre_bp_dia=1,pre_bp_sys=1,pre_weight=1,post_bp_dia=1,post_bp_sys=1,post_weight=1, date_created=timezone.now())
 		newImage = ImageModel(image=upload,entry=newEntry,url=upload.name)
 		newEntry.save()
 		newImage.save()
@@ -60,3 +60,8 @@ def confirm(request, id):
 	entry = get_object_or_404(Entry,id=id, user=request.user)
 	form = EntryForm(instance=entry)
 	return render(request,'data/enter_data.html',{'form':form,'confirm':True,'id':id})
+
+@login_required
+def data(request):
+	dates = [ entry.date_created for entry in request.user.entry_set.all()]
+	return render(request,'data/data.html',{'dates':dates})
