@@ -6,7 +6,7 @@ class EntryForm(ModelForm):
 
 	class Meta:
 		model = Entry
-		exclude = ('user', 'date_created',)
+		exclude = ('user', 'date_created','num',)
 		fields = ['pre_bp_sys','pre_bp_dia','pre_weight','post_bp_sys','post_bp_dia','post_weight']
 		labels = {'pre_bp_sys': 'Pre-Treatment Blood Pressure (Higher number)','pre_bp_dia':'Pre-Treatment Blood Pressure (Lower number)',
 		'pre_weight': 'Pre-Treatment Weight (lbs)','post_bp_sys': 'Post-Treatment Blood Pressure (Higher number)',

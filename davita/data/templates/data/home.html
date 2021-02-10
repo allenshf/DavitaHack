@@ -10,6 +10,10 @@
 			</a>
 			<br>
 			<p>Past Entries:</p><br>
+			{% for entry in user.entry_set.all%}
+				<li class="list-group-item list-group-item-light"><a href="/confirm/{{entry.id}}/">Entry Date: {{entry.date_created}}</a>
+					<a class="text-muted" href="/media/{{entry.image.url}}/">See picture</a>
+			{% endfor %}
 			</div>  
 		</row>
     </div>

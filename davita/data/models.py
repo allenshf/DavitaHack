@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils import timezone
 from PIL import Image
 
 # Create your models here.
@@ -12,7 +11,7 @@ class Entry(models.Model):
 	post_bp_sys = models.IntegerField()
 	post_bp_dia = models.IntegerField()
 	post_weight = models.IntegerField()
-	date_created = models.DateTimeField(default = timezone.now)
+	date_created = models.DateTimeField(editable=False)
 
 	def __str__(self):
 		return str(self.user) + ': ' + self.date_created.strftime('%m/%d/%Y')
@@ -20,4 +19,5 @@ class Entry(models.Model):
 class Image(models.Model):
 	image = models.ImageField()
 	entry = models.OneToOneField(Entry,on_delete=models.CASCADE)
+	url = models.CharField(max_length=100)
 
