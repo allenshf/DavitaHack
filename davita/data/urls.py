@@ -9,4 +9,5 @@ urlpatterns = [
 	path('upload/', views.upload_image, name='upload'),
 	path('confirm/<int:id>/', views.confirm, name='confirm'),
 	path('data/', views.data, name='data'),
+	path('data/<str:field>/', views.data, name='data-field'),
 ]

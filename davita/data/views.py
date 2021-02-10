@@ -13,6 +13,7 @@ from django.utils import timezone
 import io
 import matplotlib.pyplot as plt
 import urllib, base64
+import pandas as pd
 
 # Create your views here.
 def home(request):
@@ -24,14 +25,18 @@ def upload_image(request):
 		upload = request.FILES['picture']
 		fs = FileSystemStorage()
 		fs.save(upload.name,upload)
-		#TODO:Run image (upload) through OCR to get data for new Entry
-		
-		newEntry = Entry(user=request.user, pre_bp_dia=1,pre_bp_sys=1,pre_weight=1,post_bp_dia=1,post_bp_sys=1,post_weight=1, date_created=timezone.now())
+		newEntry = parseData(upload)
 		newImage = ImageModel(image=upload,entry=newEntry,url=upload.name)
 		newEntry.save()
 		newImage.save()
 		return redirect('/confirm/' + str(newEntry.id))
 	return render(request, 'data/upload.html')
+
+#TODO:Run image through OCR to get data for new Entry
+def parseData(image):
+
+	return Entry(user=request.user, pre_bp_dia=1,pre_bp_sys=1,pre_weight=1,post_bp_dia=1,post_bp_sys=1,post_weight=1, date_created=timezone.now())
+
 
 @login_required
 def enter_data(request):
@@ -73,15 +78,67 @@ def confirm(request, id):
 	return render(request,'data/enter_data.html',{'form':form,'confirm':True,'id':id})
 
 @login_required
-def data(request):
-	dates = [ entry.date_created for entry in request.user.entry_set.all()]
-	pre_bps = [ entry.pre_bp_sys for entry in request.user.entry_set.all()]
-	pre_bpd = [ entry.pre_bp_dia for entry in request.user.entry_set.all()]
-	pre_wei = [ entry.pre_weight for entry in request.user.entry_set.all()]
-	post_bps = [ entry.post_bp_sys for entry in request.user.entry_set.all()]
-	post_bpd = [ entry.post_bp_dia for entry in request.user.entry_set.all()]
-	post_wei = [ entry.post_weight for entry in request.user.entry_set.all()]
-	plt.plot(range(10))
+def data(request,field=''):
+
+	if field == 'bps':
+		data = [ {'date': entry.date_created, 'pre_bps': entry.pre_bp_sys,
+			'post_bps': entry.post_bp_sys} for entry in request.user.entry_set.all()]
+		df = pd.DataFrame(data)	
+		y_LL = int(df['post_bds'].min()*0.9)
+		y_UL = int(df['pre_bds'].max()*1.1)
+		plt.title('Systolic Blood Pressure vs Time')
+		plt.ylabel('Blood Pressure (Systolic)')
+	elif field == 'bpd':
+		data = [ {'date': entry.date_created, 'pre_bpd': entry.pre_bp_dia,
+			'post_bpd': entry.post_bp_dia} for entry in request.user.entry_set.all()]
+		df = pd.DataFrame(data)
+		y_LL = int(df['post_bdp'].min()*0.9)
+		y_UL = int(df['pre_bdp'].max()*1.1)
+		plt.title('Diastolic Blood Pressure vs Time')
+		plt.ylabel('Blood Pressure (Diastolic)')
+	else:
+		data = [ {'date': entry.date_created,'pre_wei': entry.pre_weight,
+			'post_wei': entry.post_weight} for entry in request.user.entry_set.all()]
+		df = pd.DataFrame(data)
+		y_LL = int(df['post_wei'].min()*0.9)
+		y_UL = int(df['pre_wei'].max()*1.1)
+		plt.title('Weight vs Time')
+		plt.ylabel('Weight(Pounds)')
+	
+	print(df)
+	
+	y_interval = 10
+	x_LL = data[-1]['date']
+	x_UL = data[0]['date']
+	mycolors = ['tab:red', 'tab:blue', 'tab:green', 'tab:orange'] 
+
+	# Draw Plot and Annotate
+	fig, ax = plt.subplots(1,1,figsize=(16, 9), dpi= 80)    
+
+	columns = df.columns[1:]  
+	print(columns)
+	for i, column in enumerate(columns):    
+		plt.plot(df.date.values, df[column].values, lw=1.5, color=mycolors[i])    
+		plt.text(df.shape[0]+1, df[column].values[-1], column, fontsize=14, color=mycolors[i])
+
+	# Draw Tick lines  
+	for y in range(y_LL, y_UL, y_interval):    
+		plt.hlines(y, xmin=0, xmax=71, colors='black', alpha=0.3, linestyles="--", lw=0.5)
+
+	# Decorations    
+	plt.tick_params(axis="both", which="both", bottom=False, top=False,    
+					labelbottom=True, left=False, right=False, labelleft=True)        
+
+	# Lighten borders
+	plt.gca().spines["top"].set_alpha(.3)
+	plt.gca().spines["bottom"].set_alpha(.3)
+	plt.gca().spines["right"].set_alpha(.3)
+	plt.gca().spines["left"].set_alpha(.3)
+
+	plt.xlabel('Date')
+	plt.yticks(range(y_LL, y_UL, y_interval), [str(y) for y in range(y_LL, y_UL, y_interval)], fontsize=12)    
+	plt.ylim(y_LL, y_UL)   
+	plt.xlim(x_LL, x_UL) 
 	
 	fig = plt.gcf()
 	buf = io.BytesIO()
@@ -89,5 +146,5 @@ def data(request):
 	buf.seek(0)
 	string = base64.b64encode(buf.read())
 	url = urllib.parse.quote(string)
-
+	
 	return render(request,'data/data.html',{'data':url})
