@@ -51,6 +51,8 @@ def parseData(request, image):
 					word_text = ''
 					for symbol in word.symbols:
 						word_text = word_text + symbol.text
+						if word_text == 'S':
+							word_text = '5'
 					if word_text.isnumeric():
 						vals.append(int(word_text))
 	if response.error.message:
