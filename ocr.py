@@ -26,6 +26,9 @@ def detect_document(path):
                     word_text = ''.join([
                         symbol.text for symbol in word.symbols
                     ])
+                    if word_text.isnumeric():
+                        print('Value: ' + word_text)
+
                     print('Word text: {} (confidence: {})'.format(
                         word_text, word.confidence))
                     """
