@@ -28,11 +28,11 @@ def detect_document(path):
                     ])
                     print('Word text: {} (confidence: {})'.format(
                         word_text, word.confidence))
-
+                    '''
                     for symbol in word.symbols:
                         print('\tSymbol: {} (confidence: {})'.format(
                             symbol.text, symbol.confidence))
-
+                    '''
     if response.error.message:
         raise Exception(
             '{}\nFor more info on error messages, check: '
