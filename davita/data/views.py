@@ -15,6 +15,8 @@ import matplotlib.pyplot as plt
 import urllib, base64
 import pandas as pd
 import numpy as np
+from google.cloud import vision
+
 
 # Create your views here.
 def home(request):
@@ -26,7 +28,7 @@ def upload_image(request):
 		upload = request.FILES['picture']
 		fs = FileSystemStorage()
 		fs.save(upload.name,upload)
-		newEntry = parseData(upload)
+		newEntry = parseData(request,upload)
 		newImage = ImageModel(image=upload,entry=newEntry,url=upload.name)
 		newEntry.save()
 		newImage.save()
@@ -34,9 +36,29 @@ def upload_image(request):
 	return render(request, 'data/upload.html')
 
 #TODO:Run image through OCR to get data for new Entry
-def parseData(image):
+def parseData(request, image):
+	client = vision.ImageAnnotatorClient()
+	content = image.read()
 
-	return Entry(user=request.user, pre_bp_dia=1,pre_bp_sys=1,pre_weight=1,post_bp_dia=1,post_bp_sys=1,post_weight=1, date_created=timezone.now())
+	image = vision.Image(content=content)
+	response = client.document_text_detection(image=image)
+	vals=[]
+
+	for page in response.full_text_annotation.pages:
+		for block in page.blocks:
+			for paragraph in block.paragraphs:
+				for word in paragraph.words:
+					word_text = ''
+					for symbol in word.symbols:
+						word_text = word_text + symbol.text
+					if word_text.isnumeric():
+						vals.append(int(word_text))
+	if response.error.message:
+		raise Exception(
+			'{}\nFor more info on error messages, check: '
+			'https://cloud.google.com/apis/design/errors'.format(
+				response.error.message))
+	return Entry(user=request.user, pre_bp_dia=vals[2],pre_bp_sys=vals[0],pre_weight=vals[4],post_bp_dia=vals[3],post_bp_sys=vals[1],post_weight=vals[5], date_created=timezone.now())
 
 
 @login_required
