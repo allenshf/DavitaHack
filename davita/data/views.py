@@ -84,32 +84,32 @@ def data(request,field=''):
 	if field == 'bps':
 		cat = 'Systolic Blood Pressure'
 		data = [ {'date': entry.date_created, 'pre_bps': entry.pre_bp_sys,
-			'post_bps': entry.post_bp_sys, 'avg': (entry.pre_bp_sys+entry.post_bp_sys)/2} for entry in request.user.entry_set.all().reverse()]
+			'post_bps': entry.post_bp_sys, 'avg': (entry.pre_bp_sys+entry.post_bp_sys)/2} for entry in request.user.entry_set.all().order_by('date_created')]
 		df = pd.DataFrame(data)	
 		y_LL = int(df['post_bps'].min()*0.9)
 		y_UL = int(df['pre_bps'].max()*1.1)
 	elif field == 'bpd':
 		cat = 'Diastolic Blood Pressure'
 		data = [ {'date': entry.date_created, 'pre_bpd': entry.pre_bp_dia,
-			'post_bpd': entry.post_bp_dia, 'avg': (entry.pre_bp_dia+entry.post_bp_dia)/2} for entry in request.user.entry_set.all().reverse()]
+			'post_bpd': entry.post_bp_dia, 'avg': (entry.pre_bp_dia+entry.post_bp_dia)/2} for entry in request.user.entry_set.all().order_by('date_created')]
 		df = pd.DataFrame(data)
 		y_LL = int(df['post_bpd'].min()*0.9)
 		y_UL = int(df['pre_bpd'].max()*1.1)
 	else:
 		cat = 'Weight'
 		data = [ {'date': entry.date_created,'pre_wei': entry.pre_weight,
-			'post_wei': entry.post_weight,'avg': (entry.pre_weight+entry.post_weight)/2} for entry in request.user.entry_set.all().reverse()]
+			'post_wei': entry.post_weight,'avg': (entry.pre_weight+entry.post_weight)/2} for entry in request.user.entry_set.all().order_by('date_created')]
 		df = pd.DataFrame(data)
 		y_LL = int(df['post_wei'].min()*0.9)
 		y_UL = int(df['pre_wei'].max()*1.1)
 
 	if int(df['avg'].max()) > int(df['avg'][0]*1.1):
-		messages.warning('Note: Your ' + str(cat) + " has increased by over 10% recently.")
+		messages.warning(request,'Alert: Your ' + str(cat) + " has increased by over 10% recently.")
 
 	y_interval = 10
 
-	x_LL = data[-1]['date']
-	x_UL = data[0]['date']
+	x_LL = data[0]['date']
+	x_UL = data[-1]['date']
 	mycolors = ['tab:red', 'tab:blue', 'tab:green', 'tab:orange'] 
 
 	# Draw Plot and Annotate
