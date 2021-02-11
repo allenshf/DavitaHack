@@ -104,7 +104,7 @@ def data(request,field=''):
 		y_UL = int(df['pre_wei'].max()*1.1)
 
 	if int(df['avg'].max()) > int(df['avg'][0]*1.1):
-		messages.warning('Note: Your ' + str(cat) + " has increased by over 10% recently.")
+		messages.warning(request, 'Note: Your ' + str(cat) + " has increased by over 10% recently.")
 
 	y_interval = 10
 

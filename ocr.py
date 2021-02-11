@@ -41,4 +41,4 @@ def detect_document(path):
 
 
 
-detect_document('wakeupcat.jpg')
+detect_document('test.jpg')
